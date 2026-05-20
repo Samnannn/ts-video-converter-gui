@@ -1,0 +1,50 @@
+name: Build Windows App
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Download ffmpeg
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Path vendor -Force | Out-Null
+          $release = Invoke-RestMethod "https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/latest"
+          $asset = $release.assets | Where-Object { $_.name -like "*win64-gpl-shared.zip" } | Select-Object -First 1
+          if (-not $asset) { throw "Could not find a Windows ffmpeg release asset." }
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile ffmpeg.zip
+          Expand-Archive ffmpeg.zip -DestinationPath ffmpeg-unpacked
+          $ffmpeg = Get-ChildItem ffmpeg-unpacked -Recurse -Filter ffmpeg.exe | Select-Object -First 1
+          Copy-Item $ffmpeg.FullName vendor\ffmpeg.exe
+
+      - name: Build app
+        shell: pwsh
+        run: powershell -ExecutionPolicy Bypass -File scripts/build-windows.ps1
+
+      - name: Package app
+        shell: pwsh
+        run: Compress-Archive -Path dist\TSVideoConverterGUI.exe -DestinationPath TSVideoConverterGUI-Windows.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TSVideoConverterGUI-Windows
+          path: TSVideoConverterGUI-Windows.zip
