@@ -1,79 +1,74 @@
+<div align="center">
+
 # TS Video Converter GUI
 
-A tiny Windows app for turning annoying `.ts` video downloads into clean `.mp4` files.
+### Turn laggy `.ts` video downloads into clean `.mp4` files in seconds.
 
-When you download videos using some video downloaders, the final file often comes out with a `.ts` extension instead of a normal `.mp4`. These files can lag in VLC, behave badly in popular media players, and feel even worse when you move them to a phone. Converting them with VLC or large paid converter tools can be slow, confusing, and honestly too much work for such a simple job.
+[![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D4?style=for-the-badge&logo=windows&logoColor=white)](#)
+[![FFmpeg](https://img.shields.io/badge/Powered%20by-FFmpeg-007808?style=for-the-badge&logo=ffmpeg&logoColor=white)](https://ffmpeg.org/)
+[![Release](https://img.shields.io/github/v/release/Samnannn/ts-video-converter-gui?style=for-the-badge&label=Download)](https://github.com/Samnannn/ts-video-converter-gui/releases/latest)
+[![License](https://img.shields.io/badge/License-See%20Note-orange?style=for-the-badge)](#license-note)
 
-So this app does one thing:
+![TS Video Converter GUI preview](docs/app-preview.png)
 
-**Select `.ts` videos, choose an output folder, click Convert, and get `.mp4` files quickly.**
+**No terminal. No paid converter. No separate Python or ffmpeg setup for normal users.**
 
-It uses fast stream copy conversion, so it usually finishes much faster than traditional re-encoding tools because it does not rebuild the whole video from scratch.
+[Download Latest Version](https://github.com/Samnannn/ts-video-converter-gui/releases/latest)
 
-## Why I Made This
+</div>
 
-I kept downloading videos and getting `.ts` files. They played badly, lagged on phones, and converting them one by one from the command line meant copying file paths, changing output names, and repeating the same boring steps again and again.
+## The Problem
 
-This app removes that headache.
+Some video downloaders save videos as `.ts` files instead of normal `.mp4` files. Those files can lag in VLC, behave badly in other popular media players, and feel even worse after moving them to a phone.
 
-No terminal.
-No manual file paths.
-No paid converter.
-No Python setup for normal users.
-No separate ffmpeg install.
+Converting them with VLC or heavy paid converter tools can be slow, confusing, and unnecessary when you only need a clean playable MP4.
+
+## The Fix
+
+TS Video Converter GUI is a lightweight Windows app that converts `.ts` videos into `.mp4` files using fast ffmpeg stream copy.
+
+That means it usually does not re-encode the whole video. It simply remuxes the existing video and audio into an MP4 container, so conversion can finish very quickly while keeping the original quality.
 
 ## Features
 
-- Convert `.ts` videos to `.mp4`
-- Select multiple files at once
-- Choose any output folder
-- Random unique output names, so files do not overwrite each other
-- Fast conversion using ffmpeg stream copy
-- Lightweight Windows GUI
-- Packaged release includes ffmpeg
-- Normal users do not need Python
+| Feature | What It Means |
+| --- | --- |
+| Multiple file selection | Select many `.ts` videos at once |
+| Output folder picker | Save converted files wherever you want |
+| Random unique names | Prevents accidental overwriting |
+| Fast stream copy | Uses `ffmpeg -c copy` for quick conversion |
+| Lightweight GUI | Simple Windows app, no confusing menus |
+| Bundled release build | Users do not install Python or ffmpeg manually |
 
 ## Download
 
-Go to the **Releases** page and download the latest Windows zip:
+Download the latest Windows zip from the Releases page:
 
-```text
-TSVideoConverterGUI-Windows.zip
-```
+[**Download TSVideoConverterGUI-Windows.zip**](https://github.com/Samnannn/ts-video-converter-gui/releases/latest)
 
-Extract it, then run:
+After downloading:
 
-```text
-TSVideoConverterGUI.exe
-```
-
-That is it. The app is ready to use.
-
-## How To Use
-
-1. Open `TSVideoConverterGUI.exe`
-2. Click `Add Files`
-3. Select one or more `.ts` videos
-4. Choose the output folder
+1. Extract the zip file
+2. Run `TSVideoConverterGUI.exe`
+3. Select your `.ts` files
+4. Choose an output folder
 5. Click `Convert`
 
-Your converted videos will be saved as `.mp4` files with names like:
+Your converted videos will be saved with names like:
 
 ```text
 video_a8f31c92bd.mp4
 ```
 
-## What Makes It Fast
+## How It Works
 
-Many converters re-encode the entire video, which can take a long time and may reduce quality.
-
-This app uses:
+Behind the scenes, the app runs ffmpeg like this:
 
 ```text
-ffmpeg -c copy
+ffmpeg -i input.ts -c copy -map 0 output.mp4
 ```
 
-That means it copies the existing video and audio streams into an `.mp4` container without re-encoding whenever possible. For many `.ts` files, that makes conversion very fast and keeps the original quality.
+This copies the existing streams into an MP4 file without re-encoding whenever possible.
 
 ## For Developers
 
@@ -87,19 +82,19 @@ When running from source, you need Python and ffmpeg installed on your machine.
 
 ## Build The Windows App
 
-1. Put `ffmpeg.exe` here:
+Put `ffmpeg.exe` here:
 
 ```text
 vendor/ffmpeg.exe
 ```
 
-2. Install build tools:
+Install build tools:
 
 ```powershell
 python -m pip install -r requirements-dev.txt
 ```
 
-3. Build:
+Build:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/build-windows.ps1
